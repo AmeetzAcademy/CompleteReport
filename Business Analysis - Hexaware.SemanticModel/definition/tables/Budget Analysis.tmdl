@@ -78,6 +78,9 @@ table 'Budget Analysis'
 
 		changedProperty = FormatString
 
+	measure 'Testing Measure' = "New Measure"
+		lineageTag: d85b10fa-f686-451b-97d2-2916549d5b76
+
 	column Column1
 		dataType: string
 		isHidden
