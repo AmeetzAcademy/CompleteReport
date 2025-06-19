@@ -1,0 +1,52 @@
+table Company_Expenses
+	lineageTag: 08db04c3-bc77-432b-9418-879f8a11ba6d
+
+	column 'Expense Items'
+		dataType: string
+		lineageTag: ac239421-b244-4cd4-a054-fda57f4534b8
+		summarizeBy: none
+		sourceColumn: Expense Items
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Expense Category'
+		dataType: string
+		lineageTag: eac18a2f-98ec-40cc-a5a9-6b68d01477d8
+		summarizeBy: none
+		sourceColumn: Expense Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Expense Month'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: ef2cf4d6-3fcb-4817-899d-5a4a297f7f03
+		summarizeBy: none
+		sourceColumn: Expense Month
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Value
+		dataType: double
+		lineageTag: 66679b00-aaa0-49be-af56-826aab99773b
+		summarizeBy: sum
+		sourceColumn: Value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Company_Expenses-90fbda11-ceba-4e62-9820-d0f0373bfdd8 = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("D:\Power BI Training Modules\Power BI Practice Files\Business Analysis.xlsx"), null, true),
+				    Company_Expenses_Table = Source{[Item="Company_Expenses",Kind="Table"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(Company_Expenses_Table,{{"Expense Items", type text}, {"Expense Category", type text}, {"Expense Month", type date}, {"Value", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

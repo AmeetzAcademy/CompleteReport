@@ -1,0 +1,37 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBIDesktopVersion = 2.141.1253.0 (25.03)+74f9999a1e95f78c739f3ea2b96ba340e9ba8729
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["Sales","Region","Products","Finance_Template","Customers","Company_Expenses","Business_Sensitivities","Pop","MMAs","Customer Insights","Status Grouping","Budget Analysis","Financial Analysis","Time Intelligence"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Sales
+ref table Region
+ref table Products
+ref table Finance_Template
+ref table Customers
+ref table Company_Expenses
+ref table Business_Sensitivities
+ref table Dates
+ref table Pop
+ref table MMAs
+ref table 'Customer Insights'
+ref table 'Status Grouping'
+ref table 'Budget 2018'
+ref table 'Budget Analysis'
+ref table 'Segment Revenue'
+ref table 'Finance Data'
+ref table 'Financial Analysis'
+ref table 'Time Intelligence'
+
+ref cultureInfo en-US
+

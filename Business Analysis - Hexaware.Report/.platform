@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Business Analysis - Hexaware"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "c9ff6844-9a91-4887-9ee4-727302868648"
+  }
+}

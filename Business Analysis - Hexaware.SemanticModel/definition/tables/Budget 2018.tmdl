@@ -1,0 +1,43 @@
+table 'Budget 2018'
+	lineageTag: 3ebf0790-3009-4c26-ae84-6a235e115616
+
+	column City
+		lineageTag: 69050c06-cbb5-4736-9ba6-19cbf076026e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Region[City]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Short Year'
+		formatString: 0
+		lineageTag: 565b41d2-32df-4d34-8eeb-823eb6cdc8a2
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: Dates[Short Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Budget 2018'
+		lineageTag: dde4034d-3e8b-4ff9-8dc7-aaf64dacfb41
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Budget 2018]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Budget 2018-7a128901-2c61-4f94-8934-df24f39b1b3c' = calculated
+		mode: import
+		source =
+				
+				FILTER(
+				SUMMARIZE(Sales,
+				Region[City],
+				Dates[Short Year],
+				"Budget 2018",
+				CALCULATE([Total Sales],Dates[Short Year]=2017)*1.05),Dates[Short Year]=2017)
+
+	annotation PBI_Id = f33ded9948eb4812a925af9a76be421e
+

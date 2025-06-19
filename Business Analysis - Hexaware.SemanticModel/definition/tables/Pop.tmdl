@@ -1,0 +1,91 @@
+table Pop
+	lineageTag: 80bfdf52-9ded-4770-9dac-0826aa5633ed
+
+	measure 'Total Sales' =
+			SUMX(Sales,Sales[Order Quantity]*
+			                         Sales[Unit Price])
+		formatString: #,0
+		lineageTag: a1b29901-2b37-4f8c-a78b-90f156b422dc
+
+		changedProperty = FormatString
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'Total Cost' = SUMX(Sales,Sales[Order Quantity]*Sales[Total Unit Cost])
+		lineageTag: be3bec37-8377-4cb1-9624-70d9751f491c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Profit = [Total Sales]-[Total Cost]
+		lineageTag: c770de09-ec48-4f40-9a3d-f2a02ab85329
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Profit Margin' = DIVIDE([Profit],[Total Sales],0)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: b27d4a23-62bb-49f2-acd8-15a62b211b79
+
+		changedProperty = FormatString
+
+	measure 'LY Sales' =
+			CALCULATE([Total Sales],
+			                   DATEADD(Dates[Date],-1,YEAR))
+		formatString: #,0
+		lineageTag: 631dfcbb-5d73-419a-a911-8f3228f34501
+
+		changedProperty = FormatString
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'Total Qty' = SUM(Sales[Order Quantity])
+		formatString: 0
+		lineageTag: fa48a61a-c5da-45c6-bd0f-0a528f4742f3
+
+	measure 'YoY Growth' =
+			
+			DIVIDE([Total Sales]-[LY Sales],[LY Sales],BLANK())
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 3ffbe0d6-2518-48f4-856c-18e102e13dfb
+
+		changedProperty = FormatString
+
+	measure 'Total Qty Delivered' =
+			
+			CALCULATE([Total Qty],USERELATIONSHIP(Dates[Date],Sales[Delivery Date]))
+		formatString: 0
+		lineageTag: 58d7125d-57b2-409a-afd2-2955c6609122
+
+	measure Pop = ```
+			SELECTEDVALUE(Customers[Customer Names]) 
+			```
+		lineageTag: a3dd7044-209b-478e-b596-20d352590860
+
+	measure Sales = CALCULATE([Total Sales],CROSSFILTER(Dates[Date],Sales[OrderDate],None))
+		lineageTag: ca80660e-8fe2-4e33-87e4-e63c2f442f54
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Column1
+		dataType: string
+		isHidden
+		lineageTag: 7cdf8894-1f49-4a15-981a-63f1811d036d
+		summarizeBy: none
+		sourceColumn: Column1
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Pop-fb860716-328d-4440-b931-0a9b645fc33b = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}})
+				in
+				    #"Changed Type"
+
+	changedProperty = Name
+
+	annotation PBI_ResultType = Table
+

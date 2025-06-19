@@ -1,0 +1,182 @@
+table Dates
+	lineageTag: 9491d746-2a1a-42c2-b55f-b2256056fc06
+
+	column Date
+		formatString: Short Date
+		lineageTag: a26f8186-ac3b-4ee7-bb52-82239394f666
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Name'
+		lineageTag: 3778e7e5-138d-4264-9d9e-b0cdc1946003
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Name]
+		sortByColumn: 'Month Number'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Number'
+		formatString: 0
+		lineageTag: 1c7e55db-dd67-4f34-ad91-c44258c0ab3a
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Month Number]
+
+		annotation SummarizationSetBy = Automatic
+
+	column FinMonthNumber
+		formatString: 0
+		lineageTag: 90094913-c873-4d75-b5c0-ca0bde8b08df
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [FinMonthNumber]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		lineageTag: 63d3f063-4a4b-4497-a5ab-732c0d46ad6d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fin Qtr'
+		lineageTag: 3310dd8f-7111-4263-83e5-6d174fe80372
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Fin Qtr]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Week
+		lineageTag: 0bc1e3ea-882c-430c-a0cf-ac756ea282dc
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Weeknumber
+		formatString: 0
+		lineageTag: 2aaf1722-3cbc-424e-af98-4d3b3a2f1ac9
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Weeknumber]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Short Year'
+		formatString: 0
+		lineageTag: 361c9c59-4bf8-4ae7-b48d-0195981ea186
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Short Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fin Year'
+		lineageTag: 54940fe1-f917-4935-827b-606ca85838c3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Fin Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month & YEar '
+		lineageTag: c505b45f-bb15-4fc5-9e9d-0868bf5e6679
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month & YEar ]
+		sortByColumn: 'Month & Year Sort'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month & Year Sort'
+		formatString: 0
+		lineageTag: 0c83850f-b55d-4aca-b894-aeaad961eaa4
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Month & Year Sort]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quarter & Year'
+		lineageTag: 5888d015-36f7-4882-be58-0ad7fcfcf43e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter & Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Qtr & Year Sort'
+		formatString: 0
+		lineageTag: bd3f7943-6402-4e82-991a-24ee166044ff
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Qtr & Year Sort]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week & Year'
+		lineageTag: 02cf060b-3f2a-43cd-9d6b-aa2d404b4729
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week & Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week & year Sort'
+		formatString: 0
+		lineageTag: 247b66bb-d241-4a47-b414-7943442f5161
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Week & year Sort]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dates-d1d05196-504f-43e7-b3fa-42db25694dbe = calculated
+		mode: import
+		source =
+				
+				VAR BASETABLE = CALENDARAUTO()
+				RETURN
+				GENERATE(BASETABLE,
+				VAR BASEFIELD = [Date]
+				VAR MonthNumber = MONTH(BASEFIELD)
+				VAR MonthName = FORMAT(BASEFIELD,"MMM")
+				VAR FinMonthNumber = if(MonthNumber<4,MonthNumber+9,MonthNumber-3)
+				VAR Qtr = "Q"& QUARTER(BASEFIELD)//"Q"&FORMAT(BASEFIELD,"Q")
+				VAR FinQtr = "Q"&ROUNDUP(FinMonthNumber/3,0)
+				VAR WeekNumber = WEEKNUM(BASEFIELD)
+				VAR WeekText = "WK "&WeekNumber
+				VAR ShortYear = year(BASEFIELD)
+				VAR FinYear = IF(MonthNumber<4,"FY "&ShortYear-1&"-"&RIGHT(ShortYear,2),
+				                               "FY "&ShortYear&"-"&RIGHT(ShortYear+1,2))
+				VAR Month_Year = MonthName&" "&ShortYear
+				VAR Year_Month = ShortYear*1000+MonthNumber
+				
+				VAR Week_Year = WeekText&"-"&ShortYear
+				VAR Year_Week = ShortYear*1000+WeekNumber
+				
+				VAR Qtr_Year = Qtr&"-"&ShortYear
+				VAR Year_Qtr = ShortYear*1000+QUARTER(BASEFIELD)
+				
+				RETURN
+				ROW("Month Name",MonthName,"Month Number",MonthNumber,
+				"FinMonthNumber",FinMonthNumber,"Quarter",Qtr,"Fin Qtr",FinQtr,
+				"Week",WeekText,"Weeknumber",WeekNumber,"Short Year",ShortYear,"Fin Year",FinYear,
+				"Month & YEar ",Month_Year,"Month & Year Sort",Year_Month,
+				"Quarter & Year",Qtr_Year,"Qtr & Year Sort", Year_Qtr,
+				"Week & Year",Week_Year,"Week & year Sort",Year_Week))
+
+	annotation PBI_Id = 2f173d57e920476ab55b93cc459ee379
+

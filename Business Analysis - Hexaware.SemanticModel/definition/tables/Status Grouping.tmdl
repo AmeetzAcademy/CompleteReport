@@ -1,0 +1,44 @@
+table 'Status Grouping'
+	lineageTag: 30f59fef-b8f1-44f8-b743-d0dfcc2d950a
+
+	column Status
+		dataType: string
+		lineageTag: 7f33ec95-8168-43da-b594-1c308c9c5e0a
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column Start
+		dataType: double
+		lineageTag: aeb433b2-bc94-44de-b592-21efa59d16fd
+		summarizeBy: sum
+		sourceColumn: Start
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column End
+		dataType: double
+		lineageTag: 30e91f4a-01dc-43cb-8018-541e281a71c3
+		summarizeBy: sum
+		sourceColumn: End
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Status Grouping-0abcb52a-d7f5-4669-92e7-84cf41a7dee5' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WCsjPL1LSUTIAYiNTVaVYnWglx7LUosT0VKiIjpIFVDwkvwDK01EyNDAACsYCAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Status = _t, Start = _t, End = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Status", type text}, {"Start", type number}, {"End", Percentage.Type}})
+				in
+				    #"Changed Type"
+
+	changedProperty = Name
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,32 @@
+table Customers
+	lineageTag: 909ebf4f-877e-4820-ab65-bd0f393803fe
+
+	column 'Customer Index'
+		dataType: int64
+		formatString: 0
+		lineageTag: 7cd9eebd-9c62-47a4-b5ab-acc59aa68641
+		summarizeBy: none
+		sourceColumn: Customer Index
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Customer Names'
+		dataType: string
+		lineageTag: 34e1c3c6-e1ea-45bb-8d84-18823d4a773c
+		summarizeBy: none
+		sourceColumn: Customer Names
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Customers-7de9bbe5-5b72-44c5-b69d-661f594b0341 = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("D:\Power BI Training Modules\Power BI Practice Files\Business Analysis.xlsx"), null, true),
+				    Customers_Table = Source{[Item="Customers",Kind="Table"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(Customers_Table,{{"Customer Index", Int64.Type}, {"Customer Names", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

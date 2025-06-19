@@ -1,0 +1,122 @@
+table 'Financial Analysis'
+	lineageTag: 504dfd79-9a7f-4474-a833-e1f412e47992
+
+	measure Revenue =
+			
+			DIVIDE(CALCULATE(SUM('Finance Data'[Value]),
+			          'Finance Data'[Category]="Revenue"),1000,0)
+		lineageTag: c4830e62-86c2-4611-9b51-9ce618cc1a49
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Expenses =
+			DIVIDE( CALCULATE(SUM('Finance Data'[Value]),
+			           'Finance Data'[Category]="Expenses")*-1,1000,0)
+		lineageTag: 6bcb2bd4-9add-4594-9b39-e2ec5f9b47b0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure COGS =
+			
+			DIVIDE(
+			    CALCULATE(SUM('Finance Data'[Value]),
+			    'Finance Data'[Expense Category]="COGS")*-1,1000,0)
+		lineageTag: 84ee6453-61d3-4edd-b0be-86231b312656
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Gross Profit' = [Revenue]+[COGS]
+		lineageTag: 93830823-710c-4013-aa9d-f78679182387
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Netprofit = [Revenue]+[Expenses]
+		lineageTag: ccdb7398-2f6e-409f-81ff-ebdc68dc1dd8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Annual Total' = ```
+			
+			var summary = SELECTEDVALUE(Finance_Template[Summary])
+			var items = SELECTEDVALUE(Finance_Template[Items])
+			RETURN
+			SWITCH(summary,
+			"Total Revenues",[Revenue],
+			"Total COGS",[COGS],
+			"Total Gross Profit",[Gross Profit],
+			"Total Other Expenses",[Expenses],
+			"Total Net Profit",[Netprofit],
+			CALCULATE([Netprofit],'Finance Data'[Expense Items]=items))
+			
+			```
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: ad7cbcc5-da3c-4281-beb5-30410e1598e0
+
+		changedProperty = FormatString
+
+	measure Q1 = CALCULATE([Annual Total],FILTER(Dates,Dates[Quarter]="Q1"))
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 4e28ccee-7e70-450f-8837-6bd05c971d85
+
+		changedProperty = FormatString
+
+	measure Q2 = CALCULATE([Annual Total],FILTER(Dates,Dates[Quarter]="Q2"))
+		lineageTag: 83ce10ba-14d0-4103-b080-8663f9e10ea5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Q3 = CALCULATE([Annual Total],FILTER(Dates,Dates[Quarter]="Q3"))
+		lineageTag: 8f6f5442-a981-45c0-91a0-7fa55e358a2d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Q4 = CALCULATE([Annual Total],FILTER(Dates,Dates[Quarter]="Q4"))
+		lineageTag: 64f9d7f1-dc10-4f4f-9f78-8a4e4c2add4b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'LY Total' = CALCULATE([Annual Total],SAMEPERIODLASTYEAR(Dates[Date]))
+		lineageTag: 576417c3-1f11-429b-b002-a114deafc874
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'COGS to Rev' = DIVIDE([COGS],[Revenue],0)*-1
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 64c3ffa4-a13a-42a5-bf78-0bb94ec90ee2
+
+		changedProperty = FormatString
+
+	measure 'GP %' = DIVIDE([Gross Profit],[Revenue],0)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: d3cb4fab-11bd-474d-90ff-08c5b7aa1c8e
+
+		changedProperty = FormatString
+
+	measure NP% = DIVIDE([Netprofit],[Revenue],0)
+		formatString: #,0.00%;-#,0.00%;#,0.00%
+		lineageTag: 148405da-ce2f-4e62-8ceb-073ee9721932
+
+		changedProperty = FormatString
+
+	column Column1
+		dataType: string
+		isHidden
+		lineageTag: 033a2a23-1341-4907-9c75-cb138038dcc4
+		summarizeBy: none
+		sourceColumn: Column1
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Financial Analysis-ea6864aa-4163-4d47-828d-8d0ad0d9a462' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

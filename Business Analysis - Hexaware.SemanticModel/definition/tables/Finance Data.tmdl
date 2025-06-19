@@ -1,0 +1,59 @@
+table 'Finance Data'
+	lineageTag: 28932bec-c02b-4599-9ae5-5154042083c5
+
+	column 'Expense Items'
+		lineageTag: 71e69863-68a4-4c22-8c94-521e73903b54
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Company_Expenses[Expense Items]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Expense Category'
+		lineageTag: c85dea2b-7671-4299-b107-8710c35f18a7
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Company_Expenses[Expense Category]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Expense Month'
+		formatString: General Date
+		lineageTag: 6236b5d9-4aec-4d09-9379-a9a1a11bbeea
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Company_Expenses[Expense Month]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Value
+		lineageTag: b653938d-7e4b-42c5-b683-0eb46ac8d557
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: Company_Expenses[Value]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Category =
+			
+			IF('Finance Data'[Expense Category]="Revenue","Revenue","Expenses")
+		lineageTag: e2d32a91-1b0e-48d3-8096-c2c07a08e9b9
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Finance Data-d5652bc7-65d6-4b8e-8289-1c1da2a664fd' = calculated
+		mode: import
+		source =
+				
+				UNION(Company_Expenses,
+				SUMMARIZE('Segment Revenue',
+				'Segment Revenue'[Segment],
+				'Segment Revenue'[Type],
+				'Segment Revenue'[Date],
+				'Segment Revenue'[Amount]))
+
+	annotation PBI_Id = bb0a7eac934842febbbab675cd6c66d6
+

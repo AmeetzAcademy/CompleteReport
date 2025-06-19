@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Business Analysis - Hexaware"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "7d56450f-7e95-41b6-8d94-32d5089c30e1"
+  }
+}

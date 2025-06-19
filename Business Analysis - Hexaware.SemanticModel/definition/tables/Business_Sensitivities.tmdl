@@ -1,0 +1,35 @@
+table Business_Sensitivities
+	lineageTag: 55dbd68e-2a4b-49ed-949b-bf3726fed61a
+
+	column 'Month Name'
+		dataType: string
+		lineageTag: 8d44f18c-a61a-4ea8-91f3-5c8518cb9e7c
+		summarizeBy: none
+		sourceColumn: Month Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Budget Sensitivity'
+		dataType: double
+		lineageTag: 678a0a69-b9ad-4541-8f62-95b1efd2d96d
+		summarizeBy: sum
+		sourceColumn: Budget Sensitivity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Business_Sensitivities-73a02c34-e6e5-4b7b-bc72-572c7741eea1 = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("D:\Power BI Training Modules\Power BI Practice Files\Business Analysis.xlsx"), null, true),
+				    Business_Sensitivities_Table = Source{[Item="Business_Sensitivities",Kind="Table"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(Business_Sensitivities_Table,{{"Month Name", type text}, {"Budget Sensitivity", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

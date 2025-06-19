@@ -1,0 +1,55 @@
+table Products
+	lineageTag: 7eaa93bb-1600-4ef5-8e00-c2675c90f467
+
+	column 'Product Description Index'
+		dataType: int64
+		formatString: 0
+		lineageTag: d24e4e36-b466-4e4b-bd41-803532d332e0
+		summarizeBy: none
+		sourceColumn: Product Description Index
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product Name'
+		dataType: string
+		lineageTag: c1833c3a-e77c-46f5-a164-aec2f6e551ea
+		summarizeBy: none
+		sourceColumn: Product Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Profit = [Profit]
+		formatString: #,0
+		lineageTag: 963c9d8d-8036-4a49-a951-86675ac1db79
+		summarizeBy: none
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	column Type =
+			
+			SWITCH(TRUE(),
+			Products[Profit]<=(10^6)*2.5,"Poor",
+			Products[Profit]<=(10^6)*3.5,"Average","Top")
+		lineageTag: 79b7954b-031f-42af-87ba-17600ff0ded0
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Products-309c4dc5-a074-43e2-bbed-20230debafe2 = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("D:\Power BI Training Modules\Power BI Practice Files\Business Analysis.xlsx"), null, true),
+				    Products_Table = Source{[Item="Products",Kind="Table"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(Products_Table,{{"Product Description Index", Int64.Type}, {"Product Name", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

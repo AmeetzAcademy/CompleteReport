@@ -1,0 +1,27 @@
+relationship fec5b431-791b-4dc8-993b-56585b1c32ca
+	fromColumn: Sales.'Delivery Region Index'
+	toColumn: Region.'Delivery Region Index'
+
+relationship a125f3ff-44f7-410b-9975-2b200dd31875
+	crossFilteringBehavior: bothDirections
+	fromColumn: Sales.'Product Description Index'
+	toColumn: Products.'Product Description Index'
+
+relationship 022c466e-5ad2-456c-b3f9-014d1595d0ea
+	crossFilteringBehavior: bothDirections
+	fromColumn: Sales.'Customer Name Index'
+	toColumn: Customers.'Customer Index'
+
+relationship 170f18af-86d2-4254-8943-a939be0ab83f
+	isActive: false
+	fromColumn: Sales.'Delivery Date'
+	toColumn: Dates.Date
+
+relationship c5f594be-95b9-4c24-9eea-d059b5aa3610
+	fromColumn: Sales.OrderDate
+	toColumn: Dates.Date
+
+relationship 74648164-4f5e-44d4-a9c3-12db2db5feb4
+	fromColumn: 'Finance Data'.'Expense Month'
+	toColumn: Dates.Date
+

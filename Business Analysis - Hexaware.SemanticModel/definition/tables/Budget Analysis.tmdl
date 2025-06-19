@@ -1,0 +1,102 @@
+table 'Budget Analysis'
+	lineageTag: 0005f128-1a1a-4dca-bed0-e49674923def
+
+	measure 'Yearly Budget' =
+			
+			CALCULATE(SUM('Budget 2018'[Budget 2018]),
+			TREATAS(VALUES(Region[City]),'Budget 2018'[City]))
+		lineageTag: ded4d6ea-24bc-4115-8442-a42ea753293c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Monthly Budget' =
+			
+			VAR Allocation = CALCULATE(
+			                SUM(Business_Sensitivities[Budget Sensitivity]),
+			                TREATAS(VALUES(Dates[Month Name]),
+			                Business_Sensitivities[Month Name]))
+			RETURN
+			IF(ISFILTERED(Dates[Month & YEar ]),
+			[Yearly Budget]*Allocation,[Yearly Budget])
+		lineageTag: 17a6ee4c-5329-4e55-b08f-96533b912ab1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Daily Budgets' = ```
+			
+			VAR Allocation = CALCULATE(
+			                SUM(Business_Sensitivities[Budget Sensitivity]),       
+			        TREATAS(VALUES(Dates[Month Name]),Business_Sensitivities[Month Name]))
+			
+			VAR TotalDays = CALCULATE(COUNTROWS(Dates),
+			                ALL(Dates), VALUES(Dates[Month & YEar ]))
+			
+			RETURN
+			IF(ISFILTERED(Dates[Date]),
+			[Yearly Budget]*Allocation*DIVIDE(1,TotalDays,0),[Yearly Budget])
+			```
+		lineageTag: 0ea4abbf-9e71-4e1b-9ff6-fbbd5c21f530
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Cumulative Revenue' =
+			
+			IF(ISBLANK([Total Sales]),BLANK(),
+			CALCULATE([Total Sales],
+			FILTER(ALLSELECTED(Dates),
+			Dates[Date]<=MAX(Dates[Date]))))
+		lineageTag: 51705632-e811-4fc3-84a2-3fa8b4ecaa48
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Cumulative Budget' =
+			
+			CALCULATE(
+			    SUMX(
+			        SUMMARIZE(Dates,Dates[Date],"Buget",[Daily Budgets]),
+			        [Buget]),
+			        FILTER(ALLSELECTED(Dates),Dates[Date]<=MAX(Dates[Date])))
+		lineageTag: dc9a7bc9-4a66-4a62-a048-cf6f504b8a3e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Cum Bud AOD' =
+			// cumulative budget as on date
+			VAR lastsaleDate = CALCULATE(MAX(Sales[OrderDate]),ALL(Sales))
+			Return
+			CALCULATE([Cumulative Budget],FILTER(ALLSELECTED(Dates),
+			Dates[Date]<=lastsaleDate))
+		lineageTag: 4ab04086-763a-44e6-81b3-5d29076fb7b9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Var (%)' =
+			
+			DIVIDE([Cumulative Revenue]-[Cum Bud AOD],[Cum Bud AOD],0)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 446d9740-02a7-43d5-ae04-2708d97523ee
+
+		changedProperty = FormatString
+
+	column Column1
+		dataType: string
+		isHidden
+		lineageTag: e7d92e4e-1a56-4bea-8508-197e0ab56bd4
+		summarizeBy: none
+		sourceColumn: Column1
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Budget Analysis-c06fdca3-1a24-46d2-9a9a-0e2485c9eb07' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

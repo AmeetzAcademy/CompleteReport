@@ -1,0 +1,49 @@
+table MMAs
+	lineageTag: f8a777c7-104a-4e58-a5b1-d72a5e45a640
+
+	measure 'MMA Rev' = ```
+			// monthly moving average 
+			AVERAGEX(DATESINPERIOD(Dates[Date],
+			                     LASTDATE(Dates[Date]),
+			                     -1,MONTH),[Total Sales])
+			```
+		lineageTag: 37df7494-139d-4229-9269-13ed2597f1ab
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'MMA Cost' =
+			AVERAGEX(
+			    DATESINPERIOD(Dates[Date],LASTDATE(Dates[Date]),-1,MONTH),[Total Cost])
+		lineageTag: 2acc0fb6-e840-477a-b38e-bdc6fdf36d0e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'MMA Profit' =
+			AVERAGEX(
+			    DATESINPERIOD(Dates[Date],LASTDATE(Dates[Date]),-1,MONTH),[Profit])
+		lineageTag: 351c03fb-74aa-4627-9061-584a302d0268
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Column1
+		dataType: string
+		isHidden
+		lineageTag: 06a22109-6b19-4daa-9ed1-856fcc48c895
+		summarizeBy: none
+		sourceColumn: Column1
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition MMAs-dbc17495-fcc3-45b5-aea8-1fe472cf18f7 = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

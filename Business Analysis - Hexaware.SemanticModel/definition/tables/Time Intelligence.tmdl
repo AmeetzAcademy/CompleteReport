@@ -1,0 +1,54 @@
+table 'Time Intelligence'
+	lineageTag: fe78dbd8-cfca-4845-80e4-00a91d6cd09d
+
+	measure MTD = CALCULATE([Total Sales],DATESMTD(Dates[Date]))
+		lineageTag: 009748b0-b425-4fab-b5b9-e93e12202647
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure PMTD = ```
+			
+			CALCULATE(CALCULATE([Total Sales],DATEADD(Dates[Date],-1,MONTH)),DATESMTD(Dates[Date]))
+			    
+			```
+		lineageTag: 2a4808bc-4194-46f9-aca9-513517ad1713
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure PYMTD = CALCULATE([LY Sales],DATESMTD(Dates[Date]))
+		lineageTag: 75251bf5-a353-452c-96cd-80fa3913ddb4
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'MTD vs  PMTD' = [MTD] - [PMTD]
+		lineageTag: d1c7bee8-09a5-4340-b726-8639c3c316ed
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'MTD vs PYMTD' = [MTD]-[PYMTD]
+		lineageTag: 5caf8023-cf46-4cc9-b4c3-e8d62f281cbf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Column1
+		dataType: string
+		isHidden
+		lineageTag: e2eebe13-dcf7-4bad-aef3-fdc0eba596c6
+		summarizeBy: none
+		sourceColumn: Column1
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Time Intelligence-8e9b6865-7670-48d6-81b5-7c0a4eb7ae0b' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,46 @@
+table 'Segment Revenue'
+	lineageTag: 7617c212-f097-4e28-8ca1-2a7dca4c4b26
+
+	column Segment
+		lineageTag: 5c13ae8f-54ae-4c3e-a736-a353e9df9004
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Sales[Segment]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		formatString: General Date
+		lineageTag: 8841b392-cf0a-49ac-bd5b-e3003044d789
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Dates[Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Type
+		lineageTag: b220464a-2740-4c5c-bdb5-4b6a37c6fe0f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Type]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Amount
+		lineageTag: c2def5bb-bee5-4296-a5c7-64f6e1c6edd8
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Amount]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Segment Revenue-a373728d-7a23-4040-a3f8-834eaae0a665' = calculated
+		mode: import
+		source =
+				
+				SUMMARIZE(Sales,Sales[Segment],Dates[Date],"Type","Revenue","Amount",[Total Sales])
+
+	annotation PBI_Id = 1520aab37c7a4fda94c65518dae59216
+

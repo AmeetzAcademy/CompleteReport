@@ -1,0 +1,112 @@
+table 'Customer Insights'
+	lineageTag: 88d1e316-bb1d-4b89-b430-8854614596cf
+
+	measure 'Rank TY' =
+			
+			IF(ISBLANK([Total Sales]),BLANK(),
+			RANKX(FILTER(ALL(Customers[Customer Names]),[Total Sales]>0),
+			[Total Sales],,ASC))
+		formatString: 0
+		lineageTag: b3949c2b-7a19-44ec-8374-861f6a02268f
+
+	measure 'Rank LY' =
+			
+			IF(ISBLANK([LY Sales]),BLANK(),
+			RANKX(FILTER(ALL(Customers[Customer Names]),[LY Sales]>0),
+			[Ly Sales],,ASC))
+		formatString: 0
+		lineageTag: 962f9c43-b4ae-489f-80d5-c9f497072e9a
+
+	measure 'Status TY' =
+			
+			VAR TotalCustomers = CALCULATE(COUNTROWS('Customers'),
+			                     FILTER(ALL(Customers),[Total Sales]>0))
+			Return
+			IF(ISBLANK([Total Sales]),"No Sales",
+			CALCULATE(SELECTEDVALUE('Status Grouping'[Status]),
+			FILTER('Status Grouping',
+			                        [Rank TY]>TotalCustomers*'Status Grouping'[Start]&&
+			                         [Rank TY]<=TotalCustomers*'Status Grouping'[End])))
+		lineageTag: aff49476-353a-4591-9aae-44ed1ef643ff
+
+	measure 'Status LY' =
+			
+			VAR TotalCustomers = CALCULATE(COUNTROWS('Customers'),
+			                     FILTER(ALL(Customers),[LY Sales]>0))
+			Return
+			IF(ISBLANK([LY Sales]),"No Sales",
+			CALCULATE(SELECTEDVALUE('Status Grouping'[Status]),
+			FILTER('Status Grouping',
+			                        [Rank LY]>TotalCustomers*'Status Grouping'[Start]&&
+			                         [Rank LY]<=TotalCustomers*'Status Grouping'[End])))
+		lineageTag: 9b1482b1-ba71-4d8c-b9de-fc38189ee3d9
+
+	measure 'Revenue TY' = ```
+			
+			VAR TotalCustomers = CALCULATE(COUNTROWS('Customers'),
+			                     FILTER(ALL(Customers),[Total Sales]>0))
+			Return
+			IF(ISBLANK([Total Sales]),0,
+			CALCULATE([Total Sales],
+			FILTER(VALUES(Customers[Customer Names]),
+			COUNTROWS(
+			FILTER('Status Grouping',
+			        [Rank TY]>TotalCustomers*'Status Grouping'[Start]&&
+			        [Rank TY]<=TotalCustomers*'Status Grouping'[End])))))                                                                      
+			```
+		lineageTag: f73d48b2-a030-4d3e-b6e9-3357d247c825
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Revenue LY' = ```
+			
+			VAR TotalCustomers = CALCULATE(COUNTROWS('Customers'),
+			                     FILTER(ALL(Customers),[LY Sales]>0))
+			Return
+			IF(ISBLANK([LY Sales]),0,
+			CALCULATE([LY Sales],
+			FILTER(VALUES(Customers[Customer Names]),
+			COUNTROWS(
+			FILTER('Status Grouping',
+			        [Rank LY]>TotalCustomers*'Status Grouping'[Start]&&
+			        [Rank LY]<=TotalCustomers*'Status Grouping'[End])))))  
+			```
+		lineageTag: da04ab5c-810b-476b-bd34-54566f1d46e4
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Test = ```
+			
+			VAR Totalcustomers = 
+			CALCULATE(COUNTROWS(Customers),[Total Sales]>0)
+			Return
+			COUNTROWS(
+			FILTER('Status Grouping',
+			        [Rank TY]>TotalCustomers*'Status Grouping'[Start]&&
+			        [Rank TY]<=TotalCustomers*'Status Grouping'[End]))>0
+			```
+		formatString: 0
+		lineageTag: d245378b-72db-4a61-afdb-c2aa0168af55
+
+	column Column1
+		dataType: string
+		isHidden
+		lineageTag: ca7081ef-27c4-4fd0-a0e0-a838071e9daa
+		summarizeBy: none
+		sourceColumn: Column1
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Customer Insights-61ca53c6-0d1f-49f5-881d-90837ec34a69' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

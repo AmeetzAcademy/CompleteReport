@@ -1,0 +1,40 @@
+table Finance_Template
+	lineageTag: 5af0d4b7-157b-46eb-9991-f91a03bb9848
+
+	column 'Row Index'
+		dataType: int64
+		formatString: 0
+		lineageTag: 8cc0316f-c391-46e5-abc4-231dfb04b20d
+		summarizeBy: sum
+		sourceColumn: Row Index
+
+		annotation SummarizationSetBy = Automatic
+
+	column Items
+		dataType: string
+		lineageTag: 8469ec79-b8c3-4f2e-834a-f74ada274d39
+		summarizeBy: none
+		sourceColumn: Items
+
+		annotation SummarizationSetBy = Automatic
+
+	column Summary
+		dataType: string
+		lineageTag: 31e5d875-c498-4942-b810-b9303f81a7df
+		summarizeBy: none
+		sourceColumn: Summary
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Finance_Template-030db9f0-28b9-4483-9ac5-11bb57118eba = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("D:\Power BI Training Modules\Power BI Practice Files\Business Analysis.xlsx"), null, true),
+				    Finance_Template_Table = Source{[Item="Finance_Template",Kind="Table"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(Finance_Template_Table,{{"Row Index", Int64.Type}, {"Items", type text}, {"Summary", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

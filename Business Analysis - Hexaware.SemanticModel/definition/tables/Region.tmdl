@@ -1,0 +1,66 @@
+table Region
+	lineageTag: b2256e5a-fb24-4d09-9378-e921f9618f42
+
+	column 'Delivery Region Index'
+		dataType: int64
+		formatString: 0
+		lineageTag: 0a24b87c-c9c2-4516-8595-c89410fcd0ad
+		summarizeBy: none
+		sourceColumn: Delivery Region Index
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: 686495ea-58b5-4aa0-91b0-c0e5a959e5f8
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: cafc20e7-5aaa-4d8a-a8c3-f32bf16c5e60
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Full Name'
+		dataType: string
+		lineageTag: b819d57e-f91f-4e32-91d9-4f306aea70fb
+		summarizeBy: none
+		sourceColumn: Full Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Territory
+		dataType: string
+		lineageTag: b71e2968-9dc2-451b-aa7d-2c0ba5745314
+		summarizeBy: none
+		sourceColumn: Territory
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Regional Short Code'
+		dataType: string
+		lineageTag: bacf97cd-6256-4d59-a863-a60421495633
+		summarizeBy: none
+		sourceColumn: Regional Short Code
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Region-2dc8748b-8f67-4f2e-aee4-8559e8c4eb4e = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("D:\Power BI Training Modules\Power BI Practice Files\Business Analysis.xlsx"), null, true),
+				    Region_Table = Source{[Item="Region",Kind="Table"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(Region_Table,{{"Delivery Region Index", Int64.Type}, {"City", type text}, {"Country", type text}, {"Full Name", type text}, {"Territory", type text}, {"Regional Short Code", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
